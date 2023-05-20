@@ -7,7 +7,7 @@ import snowflake.connector
 
 def query_snowflake_tables_and_columns(user, password, account, warehouse, database, schema):
     
-    # connect to snowflake
+    # Connect to Snowflake
     conn = snowflake.connector.connect(
         user=user,
         password=password,
@@ -17,9 +17,9 @@ def query_snowflake_tables_and_columns(user, password, account, warehouse, datab
         schema=schema
     )
 
-    # execute the query to retrieve table and column information
+    # Execute the query to retrieve table and column information
     query = f"""
-    select table_name, column_name
+    select table_name, column_name, data_type
     from information_schema.columns
     where table_schema = '{schema}'
     and table_catalog = '{database}'
@@ -27,19 +27,20 @@ def query_snowflake_tables_and_columns(user, password, account, warehouse, datab
     cursor = conn.cursor()
     cursor.execute(query)
 
-    # create a dictionary to store the table and column information
+    # Create a dictionary to store the table and column information
     tables_columns = {}
 
-    # process the query results
-    for table_name, column_name in cursor:
-        # check if the table name exists in the dictionary
+    # Process the query results
+    for table_name, column_name, data_type in cursor:
+        # Check if the table name exists in the dictionary
         if table_name not in tables_columns:
             tables_columns[table_name] = []
 
-        # append the column name to the list of columns for the table
-        tables_columns[table_name].append(column_name)
+        # Append a dictionary with column name and data type to the list of columns for the table
+        column_info = {"column_name": column_name, "data_type": data_type}
+        tables_columns[table_name].append(column_info)
 
-    # close the connection
+    # Close the connection
     cursor.close()
     conn.close()
 
