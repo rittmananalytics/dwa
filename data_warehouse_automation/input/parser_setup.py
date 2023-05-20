@@ -6,6 +6,7 @@ upstrem modules accordingly.
 import argparse
 import os.path
 from data_warehouse_automation.cube.cube_name_tbc import generate_cube
+from data_warehouse_automation.input.project_values import read_project_file
 
 
 def main():
@@ -24,9 +25,11 @@ def main():
     test_parser.add_argument('profile_dir', type=str, nargs='?', default=default_profile_dir, help='This command takes the path/to/your/profile.yml as input')
     test_parser.add_argument('project_dir', type=str, nargs='?', default=default_project_dir, help='This command takes the path/to/your/project.yml as input')
 
-
     # Parse the arguments
     args = parser.parse_args()
+
+    # Get the project file information
+    profile_json = read_project_file( args.project_dir )
 
     # Process based on the command
     if args.command == 'cube':
