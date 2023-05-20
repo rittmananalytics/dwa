@@ -13,7 +13,7 @@ Data Warehouse Automation
     * get approval, then I'll merge
 
 ## Project architecture
-The `main()` function is located in `data_warehouse_automation/parser/parser_setup.py`
+The `main()` function is located in `data_warehouse_automation/input/parser_setup.py`
 * This is the entry point of the package
 * When you run a `dwa` command, this function is run
 * Start there if you are looking to understand the project
