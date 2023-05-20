@@ -1,2 +1,5 @@
 # Virtual environment
 .venv/
+
+# Package metadata
+*.egg-info/
