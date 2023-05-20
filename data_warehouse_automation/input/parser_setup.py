@@ -28,8 +28,8 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    # Get the project file information
-    profile_json = read_project_file( args.project_dir )
+    # Get the project configuration file information
+    profile_content = read_project_file( args.project_dir )
 
     # Process based on the command
     if args.command == 'cube':
