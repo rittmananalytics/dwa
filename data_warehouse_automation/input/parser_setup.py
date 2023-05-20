@@ -9,7 +9,7 @@ from data_warehouse_automation.cube.cube_name_tbc import generate_cube
 from data_warehouse_automation.input.configuration_values import read_project_file, read_profile_file
 
 
-def main():
+def main(): # TODO spin parser out into a separate function, then move main to a dedicated file
     # Create the parser
     parser = argparse.ArgumentParser(description='A simple argparse program' )
     
@@ -28,7 +28,7 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    # Read the project configuration file
+    # Read the project and profile configuration files
     project_content = read_project_file( args.project_dir )
     profile_content = read_profile_file( args.profile_dir, project_content['profile'] )
 
