@@ -6,6 +6,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'pyyaml',
+        'snowflake-connector-python',
     ],
     entry_points={
         'console_scripts': [

@@ -7,6 +7,7 @@ import argparse
 import os.path
 from data_warehouse_automation.cube.cube_name_tbc import generate_cube
 from data_warehouse_automation.input.configuration_values import read_project_file, read_profile_file
+from data_warehouse_automation.input.information_schema import query_snowflake_tables_and_columns
 
 
 def main(): # TODO spin parser out into a separate function, then move main to a dedicated file
@@ -32,7 +33,16 @@ def main(): # TODO spin parser out into a separate function, then move main to a
     project_content = read_project_file( args.project_dir )
     profile_content = read_profile_file( args.profile_dir, project_content['profile'] )
 
-    # Read the profile configuration file
+    # Query Snowflake to retrieve the information schema
+    schema = query_snowflake_tables_and_columns(
+        user = profile_content['user'],
+        password = profile_content['password'],
+        account = profile_content['account'],
+        warehouse = profile_content['warehouse'],
+        database = profile_content['database'],
+        schema = profile_content['schema_name']
+    )
+    print(schema)
 
     # Process based on the command
     if args.command == 'cube':
