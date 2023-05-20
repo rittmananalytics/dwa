@@ -5,9 +5,9 @@ upstrem modules accordingly.
 """
 import argparse
 import os.path
-from data_warehouse_automation.cube.cube_name_tbc import generate_cube
 from data_warehouse_automation.input.configuration_values import read_project_file, read_profile_file
 from data_warehouse_automation.input.information_schema import query_snowflake_tables_and_columns
+from data_warehouse_automation.cube.cube_base_layer import generate_cube_js_base_file
 
 
 def main(): # TODO spin parser out into a separate function, then move main to a dedicated file
@@ -44,9 +44,14 @@ def main(): # TODO spin parser out into a separate function, then move main to a
     )
     print(schema)
 
+    # Set the file path for the cube.js base file
+    
+    file_path = 'cube/schema/base.js' # TODO put in project config
+
     # Process based on the command
     if args.command == 'cube':
-        generate_cube( args.profile_dir, args.project_dir )
+        # generate_cube( args.profile_dir, args.project_dir )
+        generate_cube_js_base_file( schema, file_path )
     else:
         print( 'Invalid command' )
 
