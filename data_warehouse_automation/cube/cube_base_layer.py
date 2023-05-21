@@ -9,7 +9,7 @@ def to_camel_case(name):
     components = name.split('_')
     return components[0].lower() + ''.join(x.title() for x in components[1:])
 
-def generate_cube_js_base_file(tables_columns, file_path):
+def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary ):
 
     # Open the file for writing
     with open(file_path, 'w') as file:
@@ -39,14 +39,15 @@ def generate_cube_js_base_file(tables_columns, file_path):
                 column_name = column_info['column_name']
                 data_type = column_info['data_type']
                 column_name_camel_case = to_camel_case(column_name)
+                column_description = field_descriptions_dictionary.get(column_name.lower(), 'no description') # Find field description 
 
                 # Prep column's attributes based on rules
                 if column_name.lower().endswith('_pk'): # Primary Key
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      type: "string",\n      primaryKey: true \n    }}')
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true \n    }}')
                 elif 'text' in data_type.lower(): # Other string
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      type: "string" \n    }}')
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
                 elif 'number' in data_type.lower(): # Numbers
-                    measures.append(f'sum{column_name_camel_case.capitalize()}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n type: "sum" \n    }}')
+                    measures.append(f'sum{column_name_camel_case.capitalize()}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "sum" \n    }}')
             
             # Write dimensions
             file.write('  dimensions: {\n\n')

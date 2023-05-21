@@ -7,6 +7,8 @@ import argparse
 import os.path
 from data_warehouse_automation.input.configuration_values import read_project_file, read_profile_file
 from data_warehouse_automation.input.information_schema import query_snowflake_tables_and_columns
+from data_warehouse_automation.input.read_text_file import read_text_file
+from data_warehouse_automation.input.process_markdown_file_content import extract_documentation
 from data_warehouse_automation.cube.cube_base_layer import generate_cube_js_base_file
 
 
@@ -49,8 +51,16 @@ def main(): # TODO spin parser out into a separate function, then move main to a
 
     # Process based on the command
     if args.command == 'cube':
-        # generate_cube( args.profile_dir, args.project_dir )
-        generate_cube_js_base_file( schema, file_path )
+        field_description_file_content = read_text_file( 
+            project_content['field_description_path'],
+            project_content['field_description_file_name']
+        )
+        field_descriptions_dictionary = extract_documentation(field_description_file_content)
+        generate_cube_js_base_file(
+            schema,
+            file_path,
+            field_descriptions_dictionary
+        )
     else:
         print( 'Invalid command' )
 
