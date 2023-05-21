@@ -7,6 +7,8 @@ import snowflake.connector
 
 def query_snowflake_tables_and_columns(user, password, account, warehouse, database, schema):
     
+    print("Acquiring database credentials")
+    
     # Connect to Snowflake
     conn = snowflake.connector.connect(
         user=user,
@@ -24,13 +26,18 @@ def query_snowflake_tables_and_columns(user, password, account, warehouse, datab
     where table_schema = '{schema}'
     and table_catalog = '{database}'
     """
+
+    print("Connecting to database")
     cursor = conn.cursor()
+
+    print("Querying information schema")
     cursor.execute(query)
 
     # Create a dictionary to store the table and column information
     tables_columns = {}
 
     # Process the query results
+    print("Parsing query result")
     for table_name, column_name, data_type in cursor:
         # Check if the table name exists in the dictionary
         if table_name not in tables_columns:

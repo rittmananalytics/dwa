@@ -42,7 +42,6 @@ def main(): # TODO spin parser out into a separate function, then move main to a
         database = profile_content['database'],
         schema = profile_content['schema_name']
     )
-    print(schema)
 
     # Set the file path for the cube.js base file
     
