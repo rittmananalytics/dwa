@@ -55,7 +55,7 @@ This should be stored in a `.droughty/`folder at the top of your repo
 profile_name:
   account: va83945.eu-west-1.aws
   password: hunter2
-  schema_name: YOURS_SCHEMA
+  schema_name: YOUR_SCHEMA
   user: amir
   warehouse: your_warehouse
   database: YOUR_DATABASE_NAME

@@ -1,5 +1,6 @@
 """
-This module 
+This module orchestrates all other modules.
+main() is the first function that's kicked off when `dwa...` commands are run.
 
 """
 import os.path
@@ -35,8 +36,7 @@ def main():
     )
 
     # Set the file path for the cube.js base file
-    
-    file_path = 'cube/schema/base.js' # TODO put in project config
+    file_path = 'cube/schema/base.js'
 
     # Process based on the command
     if args.command == 'cube':

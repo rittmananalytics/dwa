@@ -25,6 +25,7 @@ def query_snowflake_tables_and_columns(user, password, account, warehouse, datab
     from information_schema.columns
     where table_schema = '{schema}'
     and table_catalog = '{database}'
+    order by 1, 2, 3
     """
 
     print("Connecting to database")
