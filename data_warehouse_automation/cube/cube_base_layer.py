@@ -9,6 +9,7 @@ def to_camel_case(name):
     components = name.split('_')
     return components[0].lower() + ''.join(x.title() for x in components[1:])
 
+
 def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary ):
 
     # Open the file for writing
@@ -47,7 +48,7 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
                 elif 'text' in data_type.lower(): # Other string
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
                 elif 'number' in data_type.lower(): # Numbers
-                    measures.append(f'sum{column_name_camel_case.capitalize()}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "sum" \n    }}')
+                    measures.append(f'{to_camel_case("sum_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "sum" \n    }}')
             
             # Write dimensions
             file.write('  dimensions: {\n\n')
