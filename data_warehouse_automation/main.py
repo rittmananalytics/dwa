@@ -1,10 +1,9 @@
 """
-This module defines the available commands, their input parameters, and kicks off relevant
-upstrem modules accordingly.
+This module 
 
 """
-import argparse
 import os.path
+from data_warehouse_automation.input.parse_cli_input import parse_cli_input
 from data_warehouse_automation.input.configuration_values import read_project_file, read_profile_file
 from data_warehouse_automation.input.information_schema import query_snowflake_tables_and_columns
 from data_warehouse_automation.input.read_text_file import read_text_file
@@ -12,24 +11,14 @@ from data_warehouse_automation.input.process_markdown_file_content import extrac
 from data_warehouse_automation.cube.cube_base_layer import generate_cube_js_base_file
 
 
-def main(): # TODO spin parser out into a separate function, then move main to a dedicated file
-    # Create the parser
-    parser = argparse.ArgumentParser(description='A simple argparse program' )
+def main():
     
     # Create the path to the default configuration files
     default_profile_dir = os.path.expanduser( '~/.droughty/profile.yaml' )
     default_project_dir = os.path.join( os.getcwd(), 'dwa_project.yml' )
 
-    # Add subparsers for different commands
-    subparsers = parser.add_subparsers( dest='command', help='Available commands' )
-
-    # Subparser for 'cube' command
-    test_parser = subparsers.add_parser( 'cube', help='Generates base cube syntax' )
-    test_parser.add_argument( 'profile_dir', type=str, nargs='?', default=default_profile_dir, help='This command takes the path/to/your/profile.yml as input' )
-    test_parser.add_argument( 'project_dir', type=str, nargs='?', default=default_project_dir, help='This command takes the path/to/your/project.yml as input' )
-
-    # Parse the arguments
-    args = parser.parse_args()
+    # Parse the CLI input
+    args = parse_cli_input( default_profile_dir, default_project_dir )
 
     # Read the project and profile configuration files
     project_content = read_project_file( args.project_dir )

@@ -10,7 +10,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'dwa = data_warehouse_automation.input.parser_setup:main',
+            'dwa = data_warehouse_automation.main:main',
         ],
     },
 )
