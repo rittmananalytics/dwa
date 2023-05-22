@@ -18,6 +18,13 @@ def extract_documentation(markdown_content):
     for match in matches:
         doc_name = match[0].strip()
         doc_content = match[1].strip()
+
+        # Replace new lines with spaces
+        doc_content = doc_content.replace('\n', ' ')
+
+        # Replace back-ticks with regular apostrophes
+        doc_content = doc_content.replace('`', "'")
+
         documentation[doc_name] = doc_content
 
     return documentation
