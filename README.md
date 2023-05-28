@@ -1,41 +1,20 @@
-# dwa
-Data Warehouse Automation
+# dwa - Data Warehouse Automation
 
+This project automates work that is based on values in your cloud data warehouse (dwh). Currently supported:
+* Snowflake
 
-## How to develop
-1. clone this repo
-2. create a branch
-3. make changes and save your files. Some dev tips:
-    *  To add a new non-native python package, add it to `setup.install_requires` in `setup.py`
-4. test your changes by installing your local files as a package
-    * `pip3 install -e /path/to/dwa`
-    * note: the `-e` flag means that you don't need to re-install on subsequent changes
-        * unless you change the `version` in `setup.py`
-5. raise a PR into `main`
-    * get approval, then I'll merge
+## Demo: generate `Cube` code based on an `information_schema`
 
-
-## Project architecture
-
-### Overall
-The `main()` function is located in `data_warehouse_automation/main.py`
-* This is the entry point of the package
-* It also that orchestrates all other function
-* When a `dwa` command is run, this function kicks off initially
-  * this is determined by `setup.console_scripts` in `setup.py`
-* Start there if you are looking to understand the project
+![dwa_cube_demo](media/dwa_cube_demo.gif)
 
 
 ## Usage
-The `dwa --help` or `dwa -h` commands show the available sub-commands.
-
-
-### `dwa cube`
-The `cube` module queries your Snowflake database and generates a `base.js` file with syntax for`Cubes` compatible with the program previously named cube.js
-* the command to do this is `dwa cube`
-* the idea is that you automate the generation of most `dimensions` and `measures`. If the automatic configuration gets something wrong you can overwrite it with `extend`s.
-* use `dwa cube -h` to see optional arguments
-
+1. Configure your project and connections (see `configuration`)
+2. Install `dwa` (see `how to develop`)
+3. Navigate to your analytics repo
+4. Run one of the available cli commands:
+    * `dwa --help` and `dwa -h` show the available sub-commands
+    * `dwa cube` generates `Cube` (previously `cube.js`) code based on an `information_schema`
 
 ## Configuration
 Before running the program you need at least two files
@@ -61,3 +40,35 @@ profile_name:
   database: YOUR_DATABASE_NAME
   warehouse_name: snowflake
 ```
+
+## Contribute
+Anyone is welcome to contribute to this project.
+
+###  How to develop
+1. clone this repo
+2. create a branch
+3. make changes and save your files. Some dev tips:
+    *  To add a new non-native python package, add it to `setup.install_requires` in `setup.py`
+4. test your changes by installing your local files as a package
+    * `pip3 install -e /path/to/dwa`
+    * note: the `-e` flag means that you don't need to re-install on subsequent changes
+        * unless you change the `version` in `setup.py`
+5. raise a PR into `main`
+    * get approval, then I'll merge
+
+
+### Project architecture
+
+#### Overall
+The `main()` function is located in `data_warehouse_automation/main.py`
+* This is the entry point of the package
+* It also that orchestrates all other function
+* When a `dwa` command is run, this function kicks off initially
+  * this is determined by `setup.console_scripts` in `setup.py`
+* Start there if you are looking to understand the project
+
+#### `dwa cube`
+The `cube` module queries your Snowflake database and generates a `base.js` file with syntax for`Cubes` compatible with the program previously named cube.js
+* the command to do this is `dwa cube`
+* the idea is that you automate the generation of most `dimensions` and `measures`. If the automatic configuration gets something wrong you can overwrite it with `extend`s.
+* use `dwa cube -h` to see optional arguments
