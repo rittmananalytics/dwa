@@ -30,17 +30,24 @@ def query_snowflake_tables_and_columns(
 
     # Execute the query to retrieve table and column information
     query = f"""
-    select table_name, column_name, data_type
+    select
+        table_name,
+        column_name,
+        data_type
+    
     from {database}.information_schema.columns
-    where table_schema = '{schema}'
-    and table_catalog = '{database}'
+    
+    where 1=1
+        and lower( table_schema ) = lower( '{schema}' )
+        and lower( table_catalog ) = lower( '{database}' )
+
     order by 1, 2, 3
     """
 
-    print("Connecting to database")
+    print(f"Connecting to database {database}")
     cursor = conn.cursor()
 
-    print("Querying information schema")
+    print(f"Querying information schema of {schema}")
     cursor.execute(query)
 
     # Create a dictionary to store the table and column information
