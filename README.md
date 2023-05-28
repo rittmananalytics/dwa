@@ -64,16 +64,33 @@ Anyone is welcome to contribute to this project.
 
 ### Project architecture
 
-#### Overall
-The `main()` function is located in `data_warehouse_automation/main.py`
-* This is the entry point of the package
-* It also that orchestrates all other function
-* When a `dwa` command is run, this function kicks off initially
-  * this is determined by `setup.console_scripts` in `setup.py`
-* Start there if you are looking to understand the project
+
+#### `main.py`
+This project starts with the `main()` function in `data_warehouse_automation/main.py`. This function is the entry point of the package and orchestrates the interaction between all other functions. When a `dwa` command is run, the `main()` function is triggered first, serving as the initiation point for the rest of the program. If you are new to the project and trying to understand how everything fits together, starting with `main()` is your best bet.
+
+The below line of code in `main.py` makes it executable as a standalone script and also usable as a module.
+
+```python
+if __name__ == "__main__":
+    main()
+```
+
 
 #### `dwa cube`
-The `cube` module queries your Snowflake database and generates a `base.js` file with syntax for`Cubes` compatible with the program previously named cube.js
-* the command to do this is `dwa cube`
-* the idea is that you automate the generation of most `dimensions` and `measures`. If the automatic configuration gets something wrong you can overwrite it with `extend`s.
-* use `dwa cube -h` to see optional arguments
+
+The `cube` module is responsible for connecting with your Snowflake database, gathering schema information, and using this data to generate a `base.js` file. This file follows the Cube.js syntax and contains predefined `dimensions` and `measures` for your data.
+
+This feature enables you to have a dynamically updated schema file for Cube.js that reflects your current Snowflake schema, minimizing manual intervention and reducing error. If the module doesn't get the configurations right, you can easily modify them with cube's `extend` functionality.
+
+Under the hood, the `generate_cube_js_base_file()` function orchestrates this process. This function takes in table and column information from the database and a target file path for the output file. It then processes each table and its respective columns, applying specific rules based on the data types of the columns to create dimensions and measures for the Cube.js schema:
+
+- If the column name ends with `'_pk'` (indicating it's likely a `primary key`) or if its data type is `string`-like (such as `'text'`, `'varchar'`, `'string'`, etc.), it's defined as a `string` dimension in Cube.js.
+- Numeric columns (like `'number'`, `'numeric'`, `'float'`, etc.) are defined as `sum` measures.
+- `Date`, `time`, and `timestamp` type columns are defined as `time` dimensions.
+- `Boolean` type columns are created as `boolean` dimensions.
+
+The function auto-generates these configurations, but you can easily override them using Cube.js's `extend` functionality for more granular control.
+
+This module is initiated by running the `dwa cube` command. The aim of this module is to automate the creation of a Cube.js schema file. If the module doesn't get the configurations right, you can easily modify them with cube's `extend` functionality.
+
+For more details and to view optional arguments, use the `dwa cube -h` command.
