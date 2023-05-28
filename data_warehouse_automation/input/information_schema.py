@@ -5,33 +5,49 @@ this module queries the database to establish the information schema
 
 import snowflake.connector
 
-def query_snowflake_tables_and_columns(user, password, account, warehouse, database, schema):
+def query_snowflake_tables_and_columns(
+    account,
+    database,
+    password,
+    role,
+    schema,
+    user,
+    warehouse,
+    ):
     
     print("Acquiring database credentials")
     
     # Connect to Snowflake
     conn = snowflake.connector.connect(
-        user=user,
-        password=password,
         account=account,
-        warehouse=warehouse,
         database=database,
-        schema=schema
+        password=password,
+        role=role,
+        schema=schema,
+        user=user,
+        warehouse=warehouse,
     )
 
     # Execute the query to retrieve table and column information
     query = f"""
-    select table_name, column_name, data_type
-    from information_schema.columns
-    where table_schema = '{schema}'
-    and table_catalog = '{database}'
+    select
+        table_name,
+        column_name,
+        data_type
+    
+    from {database}.information_schema.columns
+    
+    where 1=1
+        and lower( table_schema ) = lower( '{schema}' )
+        and lower( table_catalog ) = lower( '{database}' )
+
     order by 1, 2, 3
     """
 
-    print("Connecting to database")
+    print(f"Connecting to database {database}")
     cursor = conn.cursor()
 
-    print("Querying information schema")
+    print(f"Querying information schema of {schema}")
     cursor.execute(query)
 
     # Create a dictionary to store the table and column information

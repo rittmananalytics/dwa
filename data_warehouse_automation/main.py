@@ -27,12 +27,13 @@ def main():
 
     # Query Snowflake to retrieve the information schema
     schema = query_snowflake_tables_and_columns(
-        user = profile_content['user'],
-        password = profile_content['password'],
         account = profile_content['account'],
-        warehouse = profile_content['warehouse'],
         database = profile_content['database'],
-        schema = profile_content['schema_name']
+        password = profile_content['password'],
+        role = profile_content['role'],
+        schema = profile_content['schema_name'],
+        user = profile_content['user'],
+        warehouse = profile_content['warehouse'],
     )
 
     # Set the file path for the cube.js base file

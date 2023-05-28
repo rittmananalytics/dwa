@@ -4,6 +4,8 @@ This module generates the cube base layer
 
 """
 
+import os
+
 # Convert a string to camel case
 def to_camel_case(name):
     components = name.split('_')
@@ -11,6 +13,9 @@ def to_camel_case(name):
 
 
 def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary ):
+
+    # Create the necessary directories
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     # Open the file for writing
     with open(file_path, 'w') as file:
