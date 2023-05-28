@@ -24,7 +24,8 @@ This is a work in progress. If you'd like to make changes to make this suitable 
 ## Configuration
 Before running the program you need at least two files
 ### project.yml
-This should be stored at the top of your repo
+This should by default be stored at the top of your repo
+* but can be overwritten by the optional `project_dir` argument
 ```yml
 profile: profile_name # this should match the name in `profile.yml'
 cube_path: cube/schema # this is where your cube output file will be
@@ -34,15 +35,16 @@ field_description_file_name: field_descriptions.md # and this is the file name
 ```
 
 ### profile.yml
-This should be stored in a `.droughty/`folder at the top of your repo
+This should by default be stored in a `.droughty/` folder in the user's home directory
+* but can be overwritten by the optional `profile_dir` argument
 ```yml
 profile_name:
   account: va83945.eu-west-1.aws
   password: hunter2
-  schema_name: YOUR_SCHEMA
+  schema_name: your_schema
   user: amir
   warehouse: your_warehouse
-  database: YOUR_DATABASE_NAME
+  database: your_database_name
   warehouse_name: snowflake
 ```
 
