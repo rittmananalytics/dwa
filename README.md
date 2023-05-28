@@ -1,7 +1,12 @@
 # dwa - Data Warehouse Automation
 
-This project automates work that is based on values in your cloud data warehouse (dwh). Currently supported:
-* Snowflake
+This project automates work that is based on values in your cloud data warehouse (dwh). Currently, it supports:
+* dwh
+  * Snowflake
+* output
+  * cube (formely cube.js) semantic files
+
+This is a work in progress. If you'd like to make changes to make this suitable for your workflow, see `contribute`.
 
 ## Demo: generate `Cube` code based on an `information_schema`
 
