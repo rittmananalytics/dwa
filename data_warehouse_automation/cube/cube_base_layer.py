@@ -50,11 +50,13 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
                 # Prep column's attributes based on rules
                 if column_name.lower().endswith('_pk'): # Primary Key
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true \n    }}')
-                elif 'text' in data_type.lower(): # Other string
+                elif data_type.lower() in ['text']: # Other string
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
-                elif 'number' in data_type.lower(): # Numbers
+                elif data_type.lower() in ['number']: # Numbers
                     measures.append(f'{to_camel_case("sum_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "sum" \n    }}')
-            
+                elif data_type.lower() in ['timestamp', 'timestamp_tz', 'timestamp_ltz', 'timestamp_ntz', 'date', 'time']: # Snowflake date, time and timestamp-related types
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "time" \n    }}')
+
             # Write dimensions
             file.write('  dimensions: {\n\n')
             file.write(',\n\n'.join('    ' + dim for dim in dimensions))
