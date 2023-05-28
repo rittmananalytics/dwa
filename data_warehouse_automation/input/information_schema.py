@@ -5,24 +5,33 @@ this module queries the database to establish the information schema
 
 import snowflake.connector
 
-def query_snowflake_tables_and_columns(user, password, account, warehouse, database, schema):
+def query_snowflake_tables_and_columns(
+    account,
+    database,
+    password,
+    role,
+    schema,
+    user,
+    warehouse,
+    ):
     
     print("Acquiring database credentials")
     
     # Connect to Snowflake
     conn = snowflake.connector.connect(
-        user=user,
-        password=password,
         account=account,
-        warehouse=warehouse,
         database=database,
-        schema=schema
+        password=password,
+        role=role,
+        schema=schema,
+        user=user,
+        warehouse=warehouse,
     )
 
     # Execute the query to retrieve table and column information
     query = f"""
     select table_name, column_name, data_type
-    from information_schema.columns
+    from {database}.information_schema.columns
     where table_schema = '{schema}'
     and table_catalog = '{database}'
     order by 1, 2, 3
