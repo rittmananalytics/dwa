@@ -27,15 +27,15 @@ Before running the program you need at least two files
 This should by default be stored at the top of your repo
 * but can be overwritten by the optional `project_dir` argument at runtime
 ```yml
-profile: profile_name # this should match the name in `profile.yml'
+profile: profile_name # this should match the name in `profiles.yml'
 cube_path: cube/schema # this is where your cube output file will be
 
 field_description_path: warehouse_docs # if you have dbt-compatible field descriptions in doc blocs, this is the folder within your repo in which the file is
 field_description_file_name: field_descriptions.md # and this is the file name
 ```
 
-### profile.yml
-This should by default be stored in a `.droughty/` folder in the user's home directory
+### profiles.yml
+This should by default be stored in a `.dwa/` folder in the user's home directory
 * but can be overwritten by the optional `profile_dir` argument at runtime
 ```yml
 profile_name:

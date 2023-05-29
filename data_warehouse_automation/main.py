@@ -15,7 +15,7 @@ from data_warehouse_automation.cube.cube_base_layer import generate_cube_js_base
 def main():
     
     # Create the path to the default configuration files
-    default_profile_dir = os.path.expanduser( '~/.droughty/profile.yaml' )
+    default_profile_dir = os.path.expanduser( '~/.dwa/profiles.yml' )
     default_project_dir = os.path.join( os.getcwd(), 'dwa_project.yml' )
 
     # Parse the CLI input
