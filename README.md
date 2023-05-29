@@ -43,10 +43,14 @@ This file should be stored at the top of your repo (this can be overridden by th
 Example configuration:
 ```yml
 profile: profile_name # The name of your profile that matches the name in `profiles.yml`
-cube_path: cube/schema # The location where your Cube output file will be stored
+
+join_inference_enabled: true # set to false to disable join inference
+join_query_time_threshold: 30 # number of seconds before join inference will be skipped for a table pair
 
 field_description_path: warehouse_docs # If you have dbt-compatible field descriptions in doc blocs, this is the folder that contains them
 field_description_file_name: field_descriptions.md # The name of the markdown file that contains field descriptions
+
+cube_path: cube/schema # The location where your Cube output file will be stored
 ```
 TODO ADD THE FOLLOWING
 

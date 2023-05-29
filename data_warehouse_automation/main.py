@@ -7,6 +7,8 @@ import os.path
 from data_warehouse_automation.input.parse_cli_input import parse_cli_input
 from data_warehouse_automation.input.configuration_values import read_project_file, read_profile_file
 from data_warehouse_automation.input.information_schema import query_snowflake_tables_and_columns
+from data_warehouse_automation.input.extract_pk_fk_pairs import extract_pk_fk_pairs
+# from data_warehouse_automation.input.join_inference import infer_joins
 from data_warehouse_automation.input.read_text_file import read_text_file
 from data_warehouse_automation.input.process_markdown_file_content import extract_documentation
 from data_warehouse_automation.cube.cube_base_layer import generate_cube_js_base_file
@@ -36,6 +38,18 @@ def main():
         warehouse = profile_content['warehouse'],
     )
 
+    # Check if join inference is enabled
+    if project_content.get('join_inference_enabled', False):
+        print('Initiating join inference')
+
+        # Extract PK-FK pairs
+        pk_fk_pairs = extract_pk_fk_pairs(schema)
+
+        # infer joins TODO
+        # infer_joins(schema, pk_fk_pairs, join_inference_enabled, project_content['join_query_time_threshold'])
+    else:
+        print('join_inference_enabled is not set to true in project .yml file. Join inference is skipped')
+
     # Set the file path for the cube.js base file
     file_path = 'cube/schema/base.js'
 
@@ -53,6 +67,7 @@ def main():
         )
     else:
         print( 'Invalid command' )
+
 
 if __name__ == "__main__":
     main()
