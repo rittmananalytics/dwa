@@ -20,9 +20,8 @@ on the naming conventions and assumptions this module relies on.
 """
 
 def extract_pk_fk_pairs(schema):
-
     pk_fk_pairs = []
-    
+
     # Iterate over each table in the schema
     for table_name, columns in schema.items():
         # Extract primary and foreign keys
@@ -36,8 +35,14 @@ def extract_pk_fk_pairs(schema):
                 if other_table_name != table_name:
                     matching_fks = [col['column_name'] for col in other_table_columns if col['column_name'].lower() == f'{pk_prefix}_fk']
                     for fk in matching_fks:
-                        pk_fk_pairs.append((table_name, pk, other_table_name, fk))
+                        pk_fk_pairs.append({
+                            'left_table': table_name,
+                            'left_column': pk,
+                            'right_table': other_table_name,
+                            'right_column': fk
+                        })
 
     print('primary-foreign key pairs identified')
 
     return pk_fk_pairs
+
