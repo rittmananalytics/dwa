@@ -12,16 +12,17 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Load the existing results if the output file exists
-    existing_results = []
+    # Load the existing cardinalities if the output file exists
+    existing_cardinalities = []
+
     if os.path.exists(output_file_path):
         with open(output_file_path, "r") as f:
-            existing_results = json.load(f)
+            existing_cardinalities = json.load(f)
 
-    # Create a dictionary to store the existing results for quick lookup
-    existing_results_dict = {(r['left_table'], r['left_column'], r['right_table'], r['right_column']): r for r in existing_results}
-
-    cardinalities = []
+    # Create a list of tuples to store the existing results for quick lookup
+    existing_cardinalities_tuple = {(r['left_table'], r['left_column'], r['right_table'], r['right_column']): r for r in existing_cardinalities}
+    
+    new_cardinalities = []
 
     print(f'Inferring relationships. Whenever possible, using saved ones at {output_file_path}')
 
@@ -34,7 +35,7 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
         right_table_pk = table_pks[right_table][0]
 
         # Check if the pair already exists in the existing results
-        if (left_table, left_column, right_table, right_column) in existing_results_dict:
+        if (left_table, left_column, right_table, right_column) in existing_cardinalities_tuple:
             # If so, skip the current loop
             print(f'Inferred relationship already saved for: {pair}')
             continue
@@ -71,8 +72,6 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
         select * from derive_cardinality
         """
 
-        print(f"query: {query}")
-
         # Execute the query and measure the elapsed time
         start_time = time.time()
         cur = connection.cursor()
@@ -80,8 +79,8 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
         elapsed_time = time.time() - start_time
 
         if elapsed_time > join_query_time_threshold:
-            print(f"Warning: Query for ({left_table}, {left_column}) and ({right_table}, {right_column}) took longer than the threshold.")
-            cardinalities.append({
+            print(f"Warning: Query for ({left_table}, {left_column}) and ({right_table}, {right_column}) took longer than the threshold of {join_query_time_threshold} seconds.")
+            new_cardinalities.append({
                 'left_table': left_table,
                 'left_column': left_column,
                 'right_table': right_table,
@@ -90,9 +89,9 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
             })
             continue
 
-        # Fetch the cardinality result and append it to the cardinalities list
-        cardinality = cur.fetchone()
-        cardinalities.append({
+        # Fetch the cardinality result and append it to the new_cardinalities list
+        cardinality = cur.fetchone()[0]  # Fetch the first element of the tuple
+        new_cardinalities.append({
             'left_table': left_table,
             'left_column': left_column,
             'right_table': right_table,
@@ -101,8 +100,9 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
             'exceeded_threshold': False
         })
 
-    # Update the existing results with the new cardinalities
-    existing_results.extend(cardinalities)
+    # Update the existing results with the new new_cardinalities
+    existing_cardinalities.extend(new_cardinalities)
+    extended_cardinalities = existing_cardinalities
 
     # Remove any pairs that are no longer present in pk_fk_pairs
     # but without the 'cardinality' and 'exceeded_threshold' keys since they do not exist in pk_fk_pairs
@@ -111,11 +111,11 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
                                 'right_table': pair['right_table'], 
                                 'right_column': pair['right_column']} for pair in pk_fk_pairs]
 
-    # Filter existing_results, keeping only those entries which are also present in pk_fk_pairs_dict_format
-    existing_results = [r for r in existing_results if {k: r[k] for k in ['left_table', 'left_column', 'right_table', 'right_column']} in pk_fk_pairs_dict_format]
+    # Filter, keeping only those entries which are also present in pk_fk_pairs_dict_format
+    filtered_cardinalities = [r for r in extended_cardinalities if {k: r[k] for k in ['left_table', 'left_column', 'right_table', 'right_column']} in pk_fk_pairs_dict_format]
 
     # Save the updated results to the output file
     with open(output_file_path, "w") as f:
-        json.dump(existing_results, f, indent=4)
-
-    return cardinalities
+        json.dump(filtered_cardinalities, f, indent=4)
+    print(f'filtered_cardinalities: {filtered_cardinalities}')
+    return filtered_cardinalities

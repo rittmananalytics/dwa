@@ -42,6 +42,10 @@ def main():
     # Extract PKs from the schema
     table_pks = extract_table_pks(schema)
 
+    # Initialize inferred_join_cardinalities to None so there's something to pass to
+    # generate_cube_js_base_file() even if infer_join_cardinality() doesn't generate any output
+    inferred_join_cardinalities = None
+
     # Check if join inference is enabled
     if project_content.get('join_inference_enabled', False):
         print('Initiating join inference')
@@ -74,7 +78,8 @@ def main():
         generate_cube_js_base_file(
             schema,
             file_path,
-            field_descriptions_dictionary
+            field_descriptions_dictionary,
+            inferred_join_cardinalities
         )
     else:
         print( 'Invalid command' )

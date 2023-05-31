@@ -12,10 +12,13 @@ def to_camel_case(name):
     return components[0].lower() + ''.join(x.title() for x in components[1:])
 
 
-def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary ):
+def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary, inferred_join_cardinalities ):
 
     # Create the necessary directories
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    # Create a dictionary mapping tables to their join cardinalities
+    join_cardinalities_dict = {(j['left_table'], j['right_table']): j['cardinality'] for j in inferred_join_cardinalities}
 
     # Open the file for writing
     with open(file_path, 'w') as file:
@@ -35,6 +38,20 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
             file.write(f'  sql: `select * from ${{databaseName()}}.${{databaseSchema()}}."{table_name}"`,\n\n')
 
             file.write('  shown: false,\n\n')
+
+            # Write joins if they exist
+            if inferred_join_cardinalities:
+                file.write('  joins: {\n')
+                for join in inferred_join_cardinalities:
+                    if join['left_table'] == table_name or join['right_table'] == table_name:
+                        join_table_name = join['right_table'] if join['left_table'] == table_name else join['left_table']
+                        join_table_name_camel_case = to_camel_case(join_table_name)
+                        relationship = join['cardinality'].replace('_','To').capitalize()
+                        file.write(f'    {join_table_name_camel_case}: {{\n')
+                        file.write(f'      relationship: "{relationship}",\n')
+                        file.write(f'      sql: `${{CUBE}}."{join["left_column"]}" = {join_table_name_camel_case}."{join["right_column"]}"`\n')
+                        file.write('    },\n')
+                file.write('  },\n')
 
             # Initialize dimensions and measures
             dimensions = []
