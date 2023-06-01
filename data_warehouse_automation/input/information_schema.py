@@ -1,5 +1,9 @@
 """
-this module queries the database to establish the information schema 
+this module queries the database to establish the information schema.
+
+It returns
+* a list of dictionaries with table and column names as well as the column types
+* the snowflake connection object 
 
 """
 
@@ -64,8 +68,4 @@ def query_snowflake_tables_and_columns(
         column_info = {"column_name": column_name, "data_type": data_type}
         tables_columns[table_name].append(column_info)
 
-    # Close the connection
-    cursor.close()
-    conn.close()
-
-    return tables_columns
+    return tables_columns, conn
