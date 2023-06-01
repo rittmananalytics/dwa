@@ -37,10 +37,10 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
         # Check if the pair already exists in the existing results
         if (left_table, left_column, right_table, right_column) in existing_cardinalities_tuple:
             # If so, skip the current loop
-            print(f'Inferred relationship already saved for: {pair}')
+            print(f'Inferred relationship already saved for {left_table}, {left_column} and {right_table}, {right_column}')
             continue
 
-        print(f'Attempting to infer join by querying: {pair}')
+        print(f'Attempting to infer relationship by querying: {left_table}, {left_column} and {right_table}, {right_column}')
 
         # Construct the SQL query to infer the join cardinality
         query = f"""
@@ -89,14 +89,21 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
             })
             continue
 
-        # Fetch the cardinality result and append it to the new_cardinalities list
+        # Fetch the cardinality result, create the inverse and append them to the new_cardinalities list
         cardinality = cur.fetchone()[0]  # Fetch the first element of the tuple
-        new_cardinalities.append({
+        if cardinality == 'one_to_one': # Reverse cardinality
+            reverse_cardinality = 'one_to_one'
+        elif cardinality == 'many_to_one':
+            reverse_cardinality = 'one_to_many'
+        else:
+            reverse_cardinality = 'many_to_one'
+        new_cardinalities.append({ # Append
             'left_table': left_table,
             'left_column': left_column,
             'right_table': right_table,
             'right_column': right_column,
             'cardinality': cardinality,
+            'reverse_cardinality': reverse_cardinality,
             'exceeded_threshold': False
         })
 
@@ -117,5 +124,5 @@ def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_t
     # Save the updated results to the output file
     with open(output_file_path, "w") as f:
         json.dump(filtered_cardinalities, f, indent=4)
-    print(f'filtered_cardinalities: {filtered_cardinalities}')
+
     return filtered_cardinalities
