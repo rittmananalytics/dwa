@@ -52,7 +52,6 @@ field_description_file_name: field_descriptions.md # The name of the markdown fi
 
 cube_path: cube/schema # The location where your Cube output file will be stored
 ```
-TODO ADD THE FOLLOWING
 
 In cases of larger databases, the process of inferring joins may consume a considerable amount of time. Therefore, you can choose to enable or disable the join inference feature in the `project.yml` configuration file. 
 
@@ -105,14 +104,14 @@ Follow these steps to contribute to the project:
 5. Raise a PR into the `main` branch. Once approved, your changes will be merged.
 
 
-### Project architecture
+## Project architecture
 
 
-#### main.py
+### main.py
 This project starts with the `main()` function in `data_warehouse_automation/main.py`. This function is the entry point of the package and orchestrates the interaction between all other functions. When a `dwa` command is run, the `main()` function is triggered first, serving as the initiation point for the rest of the program. If you are new to the project and trying to understand how everything fits together, starting with `main()` is your best bet.
 
 
-#### dwa cube
+### dwa cube - overview
 
 The `cube` module is responsible for connecting with your Snowflake database, gathering schema information, and using this data to generate a `base.js` file. This file follows the Cube.js syntax and contains predefined `dimensions` and `measures` for your data.
 
@@ -130,3 +129,28 @@ The function auto-generates these configurations, but you can easily override th
 This module is initiated by running the `dwa cube` command. The aim of this module is to automate the creation of a Cube.js schema file. If the module doesn't get the configurations right, you can easily modify them with cube's `extend` functionality.
 
 For more details and to view optional arguments, use the `dwa cube -h` command.
+
+### dwa cube - environment variables
+A key feature of this module is its incorporation of environment variables, namely `databaseSchema` and `databaseName`, which are used to dynamically specify the database and schema that the cubes' `sql:` value references. This is demonstrated in the following code block:
+
+```javascript
+import { databaseSchema, databaseName } from '../tablePrefix';
+
+cube(`dimAddress`, {
+
+  sql: `select * from ${databaseName()}.${databaseSchema()}."DIM_ADDRESS"`,
+
+  // the rest of dimAddress
+
+  cube(`dimCreditCard`, {
+
+  sql: `select * from ${databaseName()}.${databaseSchema()}."DIM_CREDIT_CARD"`,
+
+  // the rest of the output
+
+```
+This approach greatly enhances the robustness of your Cube.js setup by providing clear environment separation. By adjusting the values of these environment variables, developers can switch between different databases and schemas without having to manually edit the schema files. This flexibility is particularly beneficial in CI/CD pipelines and multi-environment setups where you might have separate development, testing, and production databases.
+
+In the context of CI/CD, the environment variable functionality contributes to automated, reliable deployment processes. You can use these variables to point your cube configurations to the appropriate database environment for each stage of your pipeline, ensuring isolation between development, staging, and production.
+
+Furthermore, the module simplifies schema updates. Should your Snowflake schema change, the `cube` module can re-generate the `base.js` file to reflect these changes, minimizing manual intervention and reducing the risk of errors.
