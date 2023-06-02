@@ -30,7 +30,7 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
 
             # Write the cube-level attributes
             table_name_camel_case = to_camel_case(table_name)
-            file.write(f'cube(`{table_name_camel_case}`, {{\n\n')
+            file.write(f'cube(`{table_name_camel_case}_base`, {{\n\n')
 
             file.write(f'  sql: `select * from ${{databaseName()}}.${{databaseSchema()}}."{table_name}"`,\n\n')
 

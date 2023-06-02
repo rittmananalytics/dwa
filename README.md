@@ -130,19 +130,25 @@ This module is initiated by running the `dwa cube` command. The aim of this modu
 
 For more details and to view optional arguments, use the `dwa cube -h` command.
 
+### dwa cube - output schema design
+There are some designs inherent in the cube output `base.js` file that is worth being mindful of
+* The cubes are hidden by default
+* The cubes have the `_base` suffix in their name. This is to allow the cube's `extend` to use the prefix as its name without causing a conflict. E.g. `dimCustomers_base` should be manually extended to `dimCustomers`.
+  * Note: The joins reference the name without the `_base` suffix
+
 ### dwa cube - environment variables
 A key feature of this module is its incorporation of environment variables, namely `databaseSchema` and `databaseName`, which are used to dynamically specify the database and schema that the cubes' `sql:` value references. This is demonstrated in the following code block:
 
 ```javascript
 import { databaseSchema, databaseName } from '../tablePrefix';
 
-cube(`dimAddress`, {
+cube(`dimAddress_base`, {
 
   sql: `select * from ${databaseName()}.${databaseSchema()}."DIM_ADDRESS"`,
 
   // the rest of dimAddress
 
-  cube(`dimCreditCard`, {
+  cube(`dimCreditCard_base`, {
 
   sql: `select * from ${databaseName()}.${databaseSchema()}."DIM_CREDIT_CARD"`,
 
