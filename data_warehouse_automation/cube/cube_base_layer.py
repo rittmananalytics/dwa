@@ -48,9 +48,10 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
                         file.write(f'    {join_table_name_camel_case}: {{\n')
                         if join['left_table'] == table_name:
                             file.write(f'      relationship: "{relationship}",\n')
+                            file.write(f'      sql: `${{CUBE}}."{join["left_column"]}" = {join_table_name_camel_case}."{join["right_column"]}"`\n')
                         else:
                             file.write(f'      relationship: "{reverse_relationship}",\n')
-                        file.write(f'      sql: `${{CUBE}}."{join["left_column"]}" = {join_table_name_camel_case}."{join["right_column"]}"`\n')
+                            file.write(f'      sql: `${{CUBE}}."{join["right_column"]}" = {join_table_name_camel_case}."{join["left_column"]}"`\n')
                         file.write('    },\n')
                 file.write('  },\n')
 
