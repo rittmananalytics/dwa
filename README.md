@@ -155,6 +155,16 @@ cube(`dimAddress_base`, {
   // the rest of the output
 
 ```
+
+**Note**: two things are needed before you can import them to your `base.js` file:
+1. Enable imports for your account ("tenant") - reach out to the cube team to do so.
+2. Export environment variables - in the dir above `schema/`, you need to make a `tablePrefix.js` file with the following:
+
+```javascript
+exports.databaseSchema = () => process.env.CUBEJS_DB_SCHEMA;
+exports.databaseName = () => process.env.CUBEJS_DB_NAME;
+```
+
 This approach greatly enhances the robustness of your Cube.js setup by providing clear environment separation. By adjusting the values of these environment variables, developers can switch between different databases and schemas without having to manually edit the schema files. This flexibility is particularly beneficial in CI/CD pipelines and multi-environment setups where you might have separate development, testing, and production databases.
 
 In the context of CI/CD, the environment variable functionality contributes to automated, reliable deployment processes. You can use these variables to point your cube configurations to the appropriate database environment for each stage of your pipeline, ensuring isolation between development, staging, and production.
