@@ -105,7 +105,9 @@ Follow these steps to contribute to the project:
 
 
 ## Project architecture
+The project is organized into several modules, each with a specific responsibility and functionality. For a detailed understanding of each module and the project's design, please refer to the individual module descriptions at the top of each python file.
 
+The sections below detail some high level knowlege about the project. Each section can pertain to more than one module.
 
 ### main.py
 This project starts with the `main()` function in `data_warehouse_automation/main.py`. This function is the entry point of the package and orchestrates the interaction between all other functions. When a `dwa` command is run, the `main()` function is triggered first, serving as the initiation point for the rest of the program. If you are new to the project and trying to understand how everything fits together, starting with `main()` is your best bet.
