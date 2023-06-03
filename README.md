@@ -132,7 +132,9 @@ This feature enables you to have a dynamically updated schema file for Cube.js t
 
 Under the hood, the `generate_cube_js_base_file()` function orchestrates this process. This function takes in table and column information from the database and a target file path for the output file. It then processes each table and its respective columns, applying specific rules based on the data types of the columns to create dimensions and measures for the Cube.js schema:
 
-- If the column name ends with `'_pk'` (indicating it's likely a `primary key`) or if its data type is `string`-like (such as `'text'`, `'varchar'`, `'string'`, etc.), it's defined as a `string` dimension in Cube.js.
+- If the column is a primary or foreign key, or if its data type is `string`-like (such as `'text'`, `'varchar'`, `'string'`, etc.), it's defined as a `string` dimension in Cube.js.
+- Primary keys are marked (`primaryKey: true`)
+- Primary and foreign keys are hidden (`public: false`).
 - Numeric columns (like `'number'`, `'numeric'`, `'float'`, etc.) are defined as `sum` measures.
 - `Date`, `time`, and `timestamp` type columns are defined as `time` dimensions.
 - `Boolean` type columns are created as `boolean` dimensions.

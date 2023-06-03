@@ -72,7 +72,9 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
 
                 # Prep column's attributes based on rules
                 if column_name.lower().endswith('_pk'): # Primary Key
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true \n    }}')
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true,\n      public: false\n    }}')
+                if column_name.lower().endswith('_fk'): # Foreign Key
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      public: false\n    }}')
                 elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']: # String types
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
                 elif data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']: # Numeric types
