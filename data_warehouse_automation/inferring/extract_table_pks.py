@@ -1,3 +1,7 @@
+"""
+extracts primary keys from each table in a given database schema, represented by a dictionary.
+"""
+
 def extract_table_pks(schema):
     table_pks = {}
 

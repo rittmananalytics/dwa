@@ -1,6 +1,10 @@
 
 """
-This module generates the cube base layer
+This module generates a base Cube.js schema file from a dictionary containing table and column 
+information from a data warehouse. The file specifies the SQL source, joins, dimensions, and 
+measures for each table, utilizing cardinality information inferred from earlier steps, as well 
+as custom field descriptions. This aids in the setup of a Cube.js analytics layer by automating 
+the schema generation based on the underlying data structure and relationships.
 
 """
 
@@ -30,7 +34,7 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
 
             # Write the cube-level attributes
             table_name_camel_case = to_camel_case(table_name)
-            file.write(f'cube(`{table_name_camel_case}`, {{\n\n')
+            file.write(f'cube(`{table_name_camel_case}_base`, {{\n\n')
 
             file.write(f'  sql: `select * from ${{databaseName()}}.${{databaseSchema()}}."{table_name}"`,\n\n')
 
@@ -48,9 +52,10 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
                         file.write(f'    {join_table_name_camel_case}: {{\n')
                         if join['left_table'] == table_name:
                             file.write(f'      relationship: "{relationship}",\n')
+                            file.write(f'      sql: `${{CUBE}}."{join["left_column"]}" = "{join_table_name.lower()}"."{join["right_column"]}"`\n')
                         else:
                             file.write(f'      relationship: "{reverse_relationship}",\n')
-                        file.write(f'      sql: `${{CUBE}}."{join["left_column"]}" = {join_table_name_camel_case}."{join["right_column"]}"`\n')
+                            file.write(f'      sql: `${{CUBE}}."{join["right_column"]}" = "{join_table_name.lower()}"."{join["left_column"]}"`\n')
                         file.write('    },\n')
                 file.write('  },\n')
 
@@ -67,7 +72,9 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
 
                 # Prep column's attributes based on rules
                 if column_name.lower().endswith('_pk'): # Primary Key
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true \n    }}')
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true,\n      public: false\n    }}')
+                if column_name.lower().endswith('_fk'): # Foreign Key
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      public: false\n    }}')
                 elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']: # String types
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
                 elif data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']: # Numeric types
