@@ -14,11 +14,14 @@ This is a work in progress. If you would like to make changes accomodate your wo
 - [Contribute](#contribute)
 - [Project Architecture](#architecture)
 
+
+***
 ## Demo: generate Cube code based on an information_schema
 
 ![dwa_cube_demo](media/dwa_cube_demo.gif)
 
 
+***
 ## Usage
 The tool is easy to use and requires minimal setup. Here is a quick start guide:
 
@@ -34,6 +37,8 @@ The CLI commands are used to perform various operations. Here's a brief overview
 
 You can get more details on each command and its options by running `dwa <command> -h`. For more detail on how these commands work, see `project architecture`.
 
+
+***
 ## Configuration
 Before running the program, you need to set up two configuration files:
 
@@ -73,24 +78,29 @@ profile_name: # The name of your profile.
   warehouse_name: snowflake # The type of your warehouse (currently, only `snowflake` is supported).
 ```
 
+
+***
 ## Assumptions About Your Data Warehouse
 
-The `dwa cube` tool operates optimally when your data warehouse adheres to specific naming conventions. These conventions aid `dwa cube` in accurately inferring table relationships and generating precise Cube.js schema files.
+**dwa** operates optimally when your data warehouse adheres to specific naming conventions. These conventions aid modules to, among other things:
+* accurately infer table relationships
 
-While these conventions are not strict requirements for `dwa cube` to operate, complying with them can significantly enhance the accuracy of the generated Cube.js schema. If your database doesn't follow these conventions, `dwa cube` may not infer the correct relationships between your tables, necessitating manual adjustments to the generated schema.
-
-It's worth noting that Cube.js's `extend` functionality allows you to easily modify the configurations in case `dwa cube` doesn't get them right, providing granular control.
+While these conventions are not strict requirements for **dwa** commands to operate, complying with them can significantly enhance the accuracy of the output. 
 
 The assumptions are as follows:
 
-1. **Primary Key (PK) Suffixes**: `dwa cube` expects primary keys in your tables to be suffixed with `_pk`. For instance, the primary key for a table named `orders` would be `order_pk`.
+1. **Primary Key (PK) Suffixes**: **dwa** expects primary keys in your tables to be suffixed with `_pk`. For instance, the primary key for a table named `orders` would be `order_pk`.
 
-2. **Foreign Key (FK) Suffixes**: In a similar fashion, `dwa cube` assumes foreign keys to be suffixed with `_fk`. For example, a foreign key pointing to the `orders` table would be `order_fk`.
+1. **Foreign Key (FK) Suffixes**: In a similar fashion, **dwa** assumes foreign keys to be suffixed with `_fk`. For example, a foreign key pointing to the `orders` table would be `order_fk`.
 
-3. **Table Name Prefixes and Suffixes**: `dwa cube` understands that your table names may carry various prefixes (like `fact_`, `dim_`, `xa_`) and are typically suffixed with the plural form of the primary key prefix. For instance, a fact table linked to the `orders` table might be named `fact_orders`.
+1. **Unicity**: dwa expects primary keys in your tables to be unique.
 
-4. **Foreign Key Naming**: `dwa cube` presumes that a foreign key will carry the exact same name as the primary key it refers to, barring the suffix. So, a foreign key referring to `order_pk` would be named `order_fk`.
+1. **Table Name Prefixes and Suffixes**: **dwa** understands that your table names may carry various prefixes (like `fact_`, `dim_`, `xa_`) and are typically suffixed with the plural form of the primary key prefix. For instance, a fact table linked to the `orders` table might be named `fact_orders`.
 
+1. **Foreign Key Naming**: **dwa** presumes that a foreign key will carry the exact same name as the primary key it refers to, barring the suffix. So, a foreign key referring to `order_pk` would be named `order_fk`.
+
+
+***
 ## Contribute
 Contributions to this project are always welcome. If you're interested in contributing, the sections below provide some useful information to help you get started. If you find anything unclear, feel free to reach out by creating an issue or suggestion on GitHub.
 
@@ -104,6 +114,7 @@ Follow these steps to contribute to the project:
 5. Raise a PR into the `main` branch. Once approved, your changes will be merged.
 
 
+***
 ## Project architecture
 The project is organized into several modules, each with a specific responsibility and functionality. For a detailed understanding of each module and the project's design, please refer to the individual module descriptions at the top of each python file.
 
@@ -115,7 +126,7 @@ This project starts with the `main()` function in `data_warehouse_automation/mai
 
 ### dwa cube - overview
 
-The `cube` module is responsible for connecting with your Snowflake database, gathering schema information, and using this data to generate a `base.js` file. This file follows the Cube.js syntax and contains predefined `dimensions` and `measures` for your data.
+The `cube` module is responsible for connecting with your Snowflake database, gathering schema information, and using this data to generate a `base.js` file. This file follows the Cube.js syntax and contains predefined `dimensions` and `measures` for your data. This module is initiated by running the `dwa cube` command.
 
 This feature enables you to have a dynamically updated schema file for Cube.js that reflects your current Snowflake schema, minimizing manual intervention and reducing error. If the module doesn't get the configurations right, you can easily modify them with cube's `extend` functionality.
 
@@ -126,11 +137,7 @@ Under the hood, the `generate_cube_js_base_file()` function orchestrates this pr
 - `Date`, `time`, and `timestamp` type columns are defined as `time` dimensions.
 - `Boolean` type columns are created as `boolean` dimensions.
 
-The function auto-generates these configurations, but you can easily override them using Cube.js's `extend` functionality for more granular control.
-
-This module is initiated by running the `dwa cube` command. The aim of this module is to automate the creation of a Cube.js schema file. If the module doesn't get the configurations right, you can easily modify them with cube's `extend` functionality.
-
-For more details and to view optional arguments, use the `dwa cube -h` command.
+To view optional arguments, use the `dwa cube -h` command.
 
 ### dwa cube - output schema design
 There are some designs inherent in the cube output `base.js` file that is worth being mindful of
