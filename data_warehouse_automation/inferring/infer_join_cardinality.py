@@ -1,3 +1,12 @@
+"""
+This  module operates on a data warehouse to deduce join cardinalities between tables, based on 
+provided primary-foreign key pairs. It runs SQL queries to identify the relationship types 
+(one-to-one, one-to-many, many-to-one, or many-to-many), while using a time threshold to flag and 
+skip complex queries that may affect performance. The results are saved into a JSON file, facilitating 
+incremental updates and reuse of existing inferences, thereby supporting optimized data processing 
+and efficient database querying.
+"""
+
 import os
 import json
 import snowflake.connector

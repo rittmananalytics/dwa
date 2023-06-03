@@ -1,6 +1,10 @@
 
 """
-This module generates the cube base layer
+This module generates a base Cube.js schema file from a dictionary containing table and column 
+information from a data warehouse. The file specifies the SQL source, joins, dimensions, and 
+measures for each table, utilizing cardinality information inferred from earlier steps, as well 
+as custom field descriptions. This aids in the setup of a Cube.js analytics layer by automating 
+the schema generation based on the underlying data structure and relationships.
 
 """
 
