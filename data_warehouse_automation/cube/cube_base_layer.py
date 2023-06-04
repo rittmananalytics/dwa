@@ -16,7 +16,7 @@ def to_camel_case(name):
     return components[0].lower() + ''.join(x.title() for x in components[1:])
 
 
-def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary, inferred_join_cardinalities ):
+def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary, inferred_join_cardinalities, concise_table_names, table_pks ):
 
     # Create the necessary directories
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -94,7 +94,8 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
             file.write(',\n\n'.join('    ' + measure for measure in measures))
             if measures: # Add a comma before the count if there are other measures
                 file.write(',\n\n')
-            file.write(f'    {to_camel_case("count_" + table_name)}: {{\n      type: "count_distinct"\n    }}\n\n  }}\n')
+            # Final measure is always the count
+            file.write(f'    {to_camel_case("count_" + concise_table_names[table_name])}: {{\n      type: "count_distinct",\n      sql:`${{CUBE}}."{table_pks[table_name][0]}"`\n    }}\n\n  }}\n')
 
             # Write the end of the cube
             file.write('});\n\n')

@@ -10,6 +10,7 @@ from data_warehouse_automation.input.information_schema import query_snowflake_t
 from data_warehouse_automation.inferring.extract_table_pks import extract_table_pks
 from data_warehouse_automation.inferring.extract_pk_fk_pairs import extract_pk_fk_pairs
 from data_warehouse_automation.inferring.infer_join_cardinality import infer_join_cardinality
+from data_warehouse_automation.inferring.remove_table_prefixes import remove_prefixes_from_table_names
 from data_warehouse_automation.input.read_text_file import read_text_file
 from data_warehouse_automation.input.process_markdown_file_content import extract_documentation
 from data_warehouse_automation.cube.cube_base_layer import generate_cube_js_base_file
@@ -65,6 +66,9 @@ def main():
     # Close the Snowflake connection
     snowflake_connection.close()
 
+    # Remove prefixes from table names
+    concise_table_names = remove_prefixes_from_table_names(schema)
+
     # Set the file path for the cube.js base file
     file_path = 'cube/schema/base.js'
 
@@ -79,7 +83,9 @@ def main():
             schema,
             file_path,
             field_descriptions_dictionary,
-            inferred_join_cardinalities
+            inferred_join_cardinalities,
+            concise_table_names,
+            table_pks
         )
     else:
         print( 'Invalid command' )
