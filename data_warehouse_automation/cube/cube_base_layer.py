@@ -94,7 +94,7 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
             file.write(',\n\n'.join('    ' + measure for measure in measures))
             if measures: # Add a comma before the count if there are other measures
                 file.write(',\n\n')
-            file.write(f'    count{table_name_camel_case.capitalize()}: {{\n      type: "count_distinct"\n    }}\n\n  }}\n')
+            file.write(f'    {to_camel_case("count_" + table_name)}: {{\n      type: "count_distinct"\n    }}\n\n  }}\n')
 
             # Write the end of the cube
             file.write('});\n\n')
