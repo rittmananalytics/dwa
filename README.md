@@ -2,7 +2,7 @@
 
 Data Warehouse Automation (dwa) is a tool designed to automate routine tasks involving your cloud-based data warehouse. 
 
-The current version supports **Snowflake data warehouses** and generates **Cube.js** semantic files.
+The current version supports [**Snowflake data warehouses**](https://www.snowflake.com/en/) and generates [**Cube.js**](https://cube.dev/) semantic files.
 
 This is a work in progress. If you would like to make changes accomodate your workflow, see section `contribute`.
 
