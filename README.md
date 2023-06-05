@@ -2,7 +2,7 @@
 
 Data Warehouse Automation (dwa) is a tool designed to automate routine tasks involving your cloud-based data warehouse. 
 
-The current version supports **Snowflake data warehouses** and generates **Cube.js** semantic files.
+The current version supports [**Snowflake data warehouses**](https://www.snowflake.com/en/) and generates [**Cube.js**](https://cube.dev/) semantic files.
 
 This is a work in progress. If you would like to make changes accomodate your workflow, see section `contribute`.
 
@@ -98,6 +98,8 @@ The assumptions are as follows:
 1. **Table Name Prefixes and Suffixes**: **dwa** understands that your table names may carry various prefixes (like `fact_`, `dim_`, `xa_`) and are typically suffixed with the plural form of the primary key prefix. For instance, a fact table linked to the `orders` table might be named `fact_orders`.
 
 1. **Foreign Key Naming**: **dwa** presumes that a foreign key will carry the exact same name as the primary key it refers to, barring the suffix. So, a foreign key referring to `order_pk` would be named `order_fk`.
+
+1. **Lowercase and Underscores**: **table** and **column names** are assumed to `be_in_this_format`
 
 
 ***

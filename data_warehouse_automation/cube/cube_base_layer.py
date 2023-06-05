@@ -16,7 +16,7 @@ def to_camel_case(name):
     return components[0].lower() + ''.join(x.title() for x in components[1:])
 
 
-def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary, inferred_join_cardinalities ):
+def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary, inferred_join_cardinalities, concise_table_names, table_pks ):
 
     # Create the necessary directories
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -72,9 +72,9 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
 
                 # Prep column's attributes based on rules
                 if column_name.lower().endswith('_pk'): # Primary Key
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true,\n      public: false\n    }}')
-                if column_name.lower().endswith('_fk'): # Foreign Key
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      public: false\n    }}')
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true,\n      shown: false\n    }}')
+                elif column_name.lower().endswith('_fk'): # Foreign Key
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      shown: false\n    }}')
                 elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']: # String types
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
                 elif data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']: # Numeric types
@@ -92,9 +92,10 @@ def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_di
             # Write measures
             file.write('  measures: {\n\n')
             file.write(',\n\n'.join('    ' + measure for measure in measures))
-            if measures:
+            if measures: # Add a comma before the count if there are other measures
                 file.write(',\n\n')
-            file.write(f'    count{table_name_camel_case.capitalize()}: {{\n      type: "count"\n    }}\n\n  }}\n')
+            # Final measure is always the count
+            file.write(f'    {to_camel_case("count_" + concise_table_names[table_name])}: {{\n      type: "count_distinct",\n      sql:`${{CUBE}}."{table_pks[table_name][0]}"`\n    }}\n\n  }}\n')
 
             # Write the end of the cube
             file.write('});\n\n')
