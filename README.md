@@ -99,6 +99,8 @@ The assumptions are as follows:
 
 1. **Foreign Key Naming**: **dwa** presumes that a foreign key will carry the exact same name as the primary key it refers to, barring the suffix. So, a foreign key referring to `order_pk` would be named `order_fk`.
 
+1. **Lowercase and Underscores**: **table** and **column names** are assumed to `be_in_this_format`
+
 
 ***
 ## Contribute
