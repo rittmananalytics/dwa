@@ -6,7 +6,10 @@ upstrem modules accordingly.
 import argparse
 
 
-def parse_cli_input( default_profile_dir, default_project_dir ):
+def parse_cli_input(
+    default_profile_dir,
+    default_project_dir,
+    ):
     
     # Create the parser
     parser = argparse.ArgumentParser(description='A simple argparse program' )

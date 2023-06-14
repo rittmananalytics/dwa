@@ -19,7 +19,7 @@ on the naming conventions and assumptions this module relies on.
 
 """
 
-def extract_pk_fk_pairs(schema):
+def extract_pk_fk_pairs( schema ):
     pk_fk_pairs = []
 
     # Iterate over each table in the schema

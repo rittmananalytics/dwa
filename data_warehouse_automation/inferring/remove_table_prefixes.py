@@ -7,7 +7,7 @@ broader application.
 
 """
 
-def remove_prefixes_from_table_names(schema_dict):
+def remove_prefixes_from_table_names( schema_dict ):
 
     prefixes = [
         'dim_',

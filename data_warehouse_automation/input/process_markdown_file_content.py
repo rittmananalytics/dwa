@@ -7,7 +7,7 @@ where the keys are the names of the documentation blocks (i.e., the strings betw
 
 import re
 
-def extract_documentation(markdown_content):
+def extract_documentation( markdown_content ):
 
     # If markdown_content is an empty dictionary, return an empty dictionary
     if isinstance(markdown_content, dict) and not markdown_content:

@@ -16,7 +16,14 @@ def to_camel_case(name):
     return components[0].lower() + ''.join(x.title() for x in components[1:])
 
 
-def generate_cube_js_base_file( tables_columns, file_path, field_descriptions_dictionary, inferred_join_cardinalities, concise_table_names, table_pks ):
+def generate_cube_js_base_file(
+    tables_columns,
+    file_path,
+    field_descriptions_dictionary,
+    inferred_join_cardinalities,
+    concise_table_names,
+    table_pks,
+    ):
 
     # Create the necessary directories
     os.makedirs(os.path.dirname(file_path), exist_ok=True)

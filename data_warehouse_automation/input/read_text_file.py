@@ -5,7 +5,11 @@ This module returns the content of a text file
 
 import os
 
-def read_text_file(file_path, file_name):
+def read_text_file(
+    file_path,
+    file_name,
+    ):
+    
     # Construct the full path to the file
     full_file_path = os.path.join(file_path, file_name)
 

@@ -12,7 +12,13 @@ import json
 import snowflake.connector
 import time
 
-def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_threshold):
+def infer_join_cardinality(
+    connection,
+    pk_fk_pairs,
+    table_pks,
+    join_query_time_threshold,
+    ):
+    
     # Specify the output directory and file path
     output_dir = "dwa_target"
     output_file_path = os.path.join(output_dir, "inferred_join_cardinalities.json")
