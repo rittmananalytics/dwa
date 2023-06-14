@@ -38,7 +38,7 @@ def main():
         schema = profile_content['schema_name'],
         user = profile_content['user'],
         warehouse = profile_content['warehouse'],
-    )
+        )
 
     # Extract PKs from the schema
     table_pks = extract_table_pks(schema)
@@ -59,7 +59,8 @@ def main():
             connection = snowflake_connection,
             pk_fk_pairs = pk_fk_pairs,
             table_pks = table_pks,
-            join_query_time_threshold = project_content['join_query_time_threshold'])
+            join_query_time_threshold = project_content['join_query_time_threshold'],
+            )
     else:
         print('join_inference_enabled is not set to true in project .yml file. Join inference is skipped')
 
@@ -74,19 +75,23 @@ def main():
 
     # Process based on the command
     if args.command == 'cube':
+
         field_description_file_content = read_text_file( 
             project_content['field_description_path'],
             project_content['field_description_file_name']
-        )
+            )
+
         field_descriptions_dictionary = extract_documentation(field_description_file_content)
+
         generate_cube_js_base_file(
             schema,
             file_path,
             field_descriptions_dictionary,
             inferred_join_cardinalities,
             concise_table_names,
-            table_pks
-        )
+            table_pks,
+            )
+
     else:
         print( 'Invalid command' )
 
