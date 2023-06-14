@@ -5,6 +5,8 @@ setup(
     version='0.9.0',
     packages=find_packages(),
     install_requires=[
+        'langchain',
+        'openai',
         'pyyaml',
         'snowflake-connector-python',
     ],
