@@ -87,12 +87,12 @@ def main():
 
         field_descriptions_dictionary = extract_documentation( field_description_file_content )
 
-
         generate_cube_js_base_file(
-            tables_columns = schema,
+            schema = schema,
             file_path = file_path,
             field_descriptions_dictionary = field_descriptions_dictionary,
             inferred_join_cardinalities = inferred_join_cardinalities,
+            semantics_from_large_language_model = semantics_from_large_language_model,
             concise_table_names = concise_table_names,
             table_pks = table_pks,
             )

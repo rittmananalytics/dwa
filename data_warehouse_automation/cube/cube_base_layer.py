@@ -21,6 +21,7 @@ def generate_cube_js_base_file(
     file_path,
     field_descriptions_dictionary,
     inferred_join_cardinalities,
+    semantics_from_large_language_model,
     concise_table_names,
     table_pks,
     ):
@@ -77,31 +78,58 @@ def generate_cube_js_base_file(
                 column_name_camel_case = to_camel_case(column_name)
                 column_description = field_descriptions_dictionary.get(column_name.lower(), 'no description') # Find field description 
 
-                # Prep column's attributes based on rules
+                # Check if semantics are specified in semantics_from_large_language_model
+                column_semantics_from_llm = semantics_from_large_language_model.get(table_name, {}).get(column_name, {})
+                is_key_column_from_llm = column_semantics_from_llm.get('is_key_column', None)
+                measure_1_type_from_llm = column_semantics_from_llm.get('measure_1_type', None)
+
+                # Prep column's attributes based on LLM semantics if exist, otherwise hardcoded rules
 
                 # Primary Key
                 if column_name.lower().endswith('_pk'):
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true,\n      shown: false\n    }}')
+                    type_to_print = 'string'
+                    shown_value = 'false'
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      primaryKey: true,\n      shown: {shown_value}\n    }}')
                 
                 # Foreign Key
                 elif column_name.lower().endswith('_fk'):
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      shown: false\n    }}')
+                    type_to_print = 'string'
+                    shown_value = 'false'
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      shown: {shown_value}\n    }}')
                 
                 # String types
                 elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']:
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
+                    type_to_print = 'string'
+                    # If the column is a key column according to the LLM, hide it
+                    if is_key_column_from_llm == 'true':
+                        shown_value = 'false'
+                    else:
+                        shown_value = 'true'
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      shown: {shown_value} \n  }}')
                 
                 # Numeric types
                 elif data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']:
-                    measures.append(f'{to_camel_case("sum_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "sum" \n    }}')
+                    # If a measure 1 type is specified in the LLM, use it
+                    if measure_1_type_from_llm is not None: 
+                        type_to_print = measure_1_type_from_llm
+                    else:
+                        type_to_print = 'sum'
+                    # If the column is a key column according to the LLM, hide it
+                    if is_key_column_from_llm == 'true':
+                        shown_value = 'false'
+                    else:
+                        shown_value = 'true'
+                    measures.append(f'{to_camel_case("sum_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      shown: {shown_value} \n   }}')
                 
                 # Date, time and timestamp-related types
                 elif data_type.lower() in ['timestamp', 'timestamp_tz', 'timestamp_ltz', 'timestamp_ntz', 'date', 'time']:
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "time" \n    }}')
+                    type_to_print = 'time'
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}" \n    }}')
                 
                 # Boolean types
                 elif data_type.lower() in ['boolean']:
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "boolean" \n    }}')
+                    type_to_print = 'boolean'
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}" \n    }}')
 
             # Write dimensions
             file.write('  dimensions: {\n\n')
