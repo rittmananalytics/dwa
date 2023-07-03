@@ -17,7 +17,7 @@ def to_camel_case(name):
 
 
 def generate_cube_js_base_file(
-    tables_columns,
+    schema,
     file_path,
     field_descriptions_dictionary,
     inferred_join_cardinalities,
@@ -37,7 +37,7 @@ def generate_cube_js_base_file(
         file.write('import { databaseSchema, databaseName } from \'../tablePrefix\';\n\n')
 
         # Iterate over each table in the dictionary
-        for table_name, columns in tables_columns.items():
+        for table_name, columns in schema.items():
 
             # Write the cube-level attributes
             table_name_camel_case = to_camel_case(table_name)
@@ -78,17 +78,29 @@ def generate_cube_js_base_file(
                 column_description = field_descriptions_dictionary.get(column_name.lower(), 'no description') # Find field description 
 
                 # Prep column's attributes based on rules
-                if column_name.lower().endswith('_pk'): # Primary Key
+
+                # Primary Key
+                if column_name.lower().endswith('_pk'):
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      primaryKey: true,\n      shown: false\n    }}')
-                elif column_name.lower().endswith('_fk'): # Foreign Key
+                
+                # Foreign Key
+                elif column_name.lower().endswith('_fk'):
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string",\n      shown: false\n    }}')
-                elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']: # String types
+                
+                # String types
+                elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']:
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "string" \n    }}')
-                elif data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']: # Numeric types
+                
+                # Numeric types
+                elif data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']:
                     measures.append(f'{to_camel_case("sum_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "sum" \n    }}')
-                elif data_type.lower() in ['timestamp', 'timestamp_tz', 'timestamp_ltz', 'timestamp_ntz', 'date', 'time']: # Date, time and timestamp-related types
+                
+                # Date, time and timestamp-related types
+                elif data_type.lower() in ['timestamp', 'timestamp_tz', 'timestamp_ltz', 'timestamp_ntz', 'date', 'time']:
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "time" \n    }}')
-                elif data_type.lower() in ['boolean']: # Boolean types
+                
+                # Boolean types
+                elif data_type.lower() in ['boolean']:
                     dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "boolean" \n    }}')
 
             # Write dimensions
