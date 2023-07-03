@@ -1,3 +1,4 @@
+Project curator: [Amir Jaber](https://github.com/Terroface)
 # dwa - Data Warehouse Automation
 
 Data Warehouse Automation (dwa) is a tool designed to automate routine tasks involving your cloud-based data warehouse. 
