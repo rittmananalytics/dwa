@@ -8,12 +8,12 @@ The current version supports [**Snowflake data warehouses**](https://www.snowfla
 This is a work in progress. If you would like to make changes accomodate your workflow, see section `contribute`.
 
 **Table of Contents**
-- [Demo](#demo)
+- [Demo](#demo-generate-cube-code-based-on-an-information_schema)
 - [Usage](#usage)
 - [Configuration](#configuration)
-- [Assumptions About Your Data Warehouse](#assumptions)
+- [Assumptions About Your Data Warehouse](#assumptions-about-your-data-warehouse)
 - [Contribute](#contribute)
-- [Project Architecture](#architecture)
+- [Project Architecture](#project-architecture)
 
 
 ***
@@ -61,7 +61,7 @@ cube_path: cube/schema # The location where your Cube output file will be stored
 
 In cases of larger databases, the process of inferring joins may consume a considerable amount of time. Therefore, you can choose to enable or disable the join inference feature in the `project.yml` configuration file. 
 
-Furthermore, you can set a warning threshold for the maximum permitted time for a single join inference query in the `project.yml` configuration file. If a query exceeds this threshold, a warning is printed in the terminal, and the table pair in question is skipped for join inference. The names of such tables are preserved in a configuration file and are skipped in future runs to prevent repeating time-consuming queries.
+Furthermore, you can set a warning threshold for the maximum permitted time for a single join inference query in the `project.yml` configuration file. If a query exceeds this threshold, a warning is printed in the terminal, and the table pair in question is skipped for join inference.
 
 ### profiles.yml
 This file should be stored in a `.dwa/` folder in the user's home directory (this can be overridden by the `profile_dir` argument at runtime). It contains the details of your data warehouse profile.
@@ -79,13 +79,15 @@ profile_name: # The name of your profile.
   warehouse_name: snowflake # The type of your warehouse (currently, only `snowflake` is supported).
 ```
 ### Optional - Setting Up the OpenAI API Key
-To utilize the Large Language Model (`--llm`) functionality, you need to set the OpenAI API key in your environment variables. The key should be assigned to the variable `OPENAI_API_KEY`.
+To utilize the Large Language Model (`--llm`) functionality, you need to set the OpenAI API key in your environment variables. The key should be assigned to the environment variable `OPENAI_API_KEY`.
 
 ***
 ## Assumptions About Your Data Warehouse
 
-**dwa** operates optimally when your data warehouse adheres to specific naming conventions. These conventions aid modules to, among other things:
-* accurately infer table relationships
+**dwa** operates optimally when your data warehouse adheres to specific naming conventions. These conventions aid modules to infer, among other things:
+* table relationships
+* dimensions
+* measures
 
 While these conventions are not strict requirements for **dwa** commands to operate, complying with them can significantly enhance the accuracy of the output. 
 
@@ -193,3 +195,27 @@ This approach greatly enhances the robustness of your Cube.js setup by providing
 In the context of CI/CD, the environment variable functionality contributes to automated, reliable deployment processes. You can use these variables to point your cube configurations to the appropriate database environment for each stage of your pipeline, ensuring isolation between development, staging, and production.
 
 Furthermore, the module simplifies schema updates. Should your Snowflake schema change, the `cube` module can re-generate the `base.js` file to reflect these changes, minimizing manual intervention and reducing the risk of errors.
+
+### dwa target - performance efficiency during inference
+Two features are quite computationally heavy, if enabled:
+* join inference (queries warehouse)
+* semantic inference with llm (queries paid API)
+
+Without mitigation, these features could:
+* take a long time
+* cost money
+
+Luckily, dwa includes mitigation for this. The output of these queries are stored in dictionaries within JSON files under the directory `dwa_target/`. If relevant output is then found here on subsequent runs, the query is **not initiated** and the **saved value is re-used**. Also, if the output generation is interrupted midway through, the already written objects will still **be available in the output files**, because each object is written to the relevant output file **as soon as it's created**.
+
+join inference:
+* file: `inferred_join_cardinalities.json`
+* each json object represents: **one pk-fk pair's query output**
+* output
+  * successful output
+  * if `join_query_time_threshold` in `profiles.yml` is exceeded, the query is cancelled and this is noted in the file to avoid future attempts.
+
+semantic inference with llm
+* file: `semantics_from_large_language_model.json`
+* each json object represents: **a table with nested column objects**
+* output
+  * successful output
