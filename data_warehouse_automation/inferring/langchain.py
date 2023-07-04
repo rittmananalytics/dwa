@@ -92,8 +92,10 @@ def infer_semantics_with_a_large_language_model( schema ):
         Act as a developer creating a semantic layer in cube.js on top of a data warehouse. \
         I want you to, for the colum_name '{column_name}' of table '{table_name}' (the key of \
         the dictionary) decide:
+            1. whether this column is likely to be a primary, foreign, natural, or surrogate key column
             2. which dimension type this column should create
-            3. whether it would be useful to create up to two measures from this column.
+            3. whether it would be useful to create up to two measures from this column and, if \
+                so, which measure types to create.
 
         Follow these rules:
             1. you have choose a dimension type for every column
@@ -109,7 +111,9 @@ def infer_semantics_with_a_large_language_model( schema ):
                 * count_distinct
                 * max
                 * min
-            5. you should aim to make measures whenever appropriate and preferrably 2.
+            5. you should aim to make measures whenever appropriate and preferrably 2. The exception: next rule.
+            6. only assign the count_distinct measure type on columns which are likely to be primary, foreign, \
+                natural, or surrogate key columns.
 
         schema: {schema}
 
