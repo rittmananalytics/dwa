@@ -2,7 +2,7 @@
 .vscode/
 
 # Virtual environment
-.venv/
+.venv*/
 
 # Package metadata
 *.egg-info/
