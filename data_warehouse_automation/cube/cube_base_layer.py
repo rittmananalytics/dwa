@@ -15,6 +15,16 @@ def to_camel_case(name):
     components = name.split('_')
     return components[0].lower() + ''.join(x.title() for x in components[1:])
 
+# Check if a column has a specified measure type in the llm output
+def check_measure_type_llm(measure_type):
+    # If measure type is None, return False
+    if measure_type is None:
+        return False
+    # If measure type is a string containing "null", return False
+    if isinstance(measure_type, str) and "null" in measure_type.lower():
+        return False
+    # Otherwise, return True
+    return True
 
 def generate_cube_js_base_file(
     schema,
@@ -71,65 +81,72 @@ def generate_cube_js_base_file(
             dimensions = []
             measures = []
 
-            # Process each column in the table
+            # Prepare the dimensions and measures (not yet written to file)
+            # Based on LLM semantics if those exist, otherwise hardcoded rules
             for column_info in columns:
                 column_name = column_info['column_name']
                 data_type = column_info['data_type']
                 column_name_camel_case = to_camel_case(column_name)
-                column_description = field_descriptions_dictionary.get(column_name.lower(), 'no description') # Find field description 
+                value_column_description = field_descriptions_dictionary.get(column_name.lower(), 'no description') # Find field description 
 
-                # Check if semantics are specified in semantics_from_large_language_model
+                # Get semantics for the column from LLM results if they exist
                 column_semantics_from_llm = semantics_from_large_language_model.get(table_name, {}).get(column_name, {})
-                is_key_column_from_llm = column_semantics_from_llm.get('is_key_column', None)
-                measure_1_type_from_llm = column_semantics_from_llm.get('measure_1_type', None)
+                is_key_column_from_llm = column_semantics_from_llm.get('is_key_column')
+                measure_1_type_from_llm = column_semantics_from_llm.get('measure_1_type')
+                measure_2_type_from_llm = column_semantics_from_llm.get('measure_2_type')
 
-                # Prep column's attributes based on LLM semantics if exist, otherwise hardcoded rules
+                # Prepare Measures
+                if data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']:
+                    
+                    # Default measure values (unless overwritten below)
+                    value_shown = 'true'
+                    value_type = 'sum'
 
-                # Primary Key
-                if column_name.lower().endswith('_pk'):
-                    type_to_print = 'string'
-                    shown_value = 'false'
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      primaryKey: true,\n      shown: {shown_value}\n    }}')
-                
-                # Foreign Key
-                elif column_name.lower().endswith('_fk'):
-                    type_to_print = 'string'
-                    shown_value = 'false'
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      shown: {shown_value}\n    }}')
-                
-                # String types
-                elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']:
-                    type_to_print = 'string'
-                    # If the column is a key column according to the LLM, hide it
-                    if is_key_column_from_llm == 'true':
-                        shown_value = 'false'
-                    else:
-                        shown_value = 'true'
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      shown: {shown_value} \n  }}')
-                
-                # Numeric types
-                elif data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']:
                     # If a measure 1 type is specified in the LLM, use it
-                    if measure_1_type_from_llm is not None: 
-                        type_to_print = measure_1_type_from_llm
-                    else:
-                        type_to_print = 'sum'
-                    # If the column is a key column according to the LLM, hide it
-                    if is_key_column_from_llm == 'true':
-                        shown_value = 'false'
-                    else:
-                        shown_value = 'true'
-                    measures.append(f'{to_camel_case("sum_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}",\n      shown: {shown_value} \n   }}')
-                
-                # Date, time and timestamp-related types
-                elif data_type.lower() in ['timestamp', 'timestamp_tz', 'timestamp_ltz', 'timestamp_ntz', 'date', 'time']:
-                    type_to_print = 'time'
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}" \n    }}')
-                
-                # Boolean types
-                elif data_type.lower() in ['boolean']:
-                    type_to_print = 'boolean'
-                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{column_description}`, \n      type: "{type_to_print}" \n    }}')
+                    if check_measure_type_llm(measure_1_type_from_llm): 
+                        value_type = measure_1_type_from_llm
+
+                    # Add the first measure to the measures list (not yet written to file)
+                    measures.append(f'{to_camel_case( value_type + "_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{value_column_description}`, \n      type: "{value_type}",\n      shown: {value_shown} \n   }}')
+
+                    # If a measure 2 type is specified in the LLM, use it and add the second measure to the measures list (not yet written to file)
+                    if check_measure_type_llm(measure_2_type_from_llm): 
+                        value_type_2 = measure_2_type_from_llm
+                        measures.append(f'{to_camel_case( value_type_2 + "_" + column_name)}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{value_column_description}`, \n      type: "{value_type_2}",\n      shown: {value_shown} \n   }}')
+
+                # Prepare Dimensions
+                else:
+                    
+                    # Default dimension values (unless overwritten below)
+                    value_shown = 'true'
+                    value_primary_key = 'false'
+                    value_type = 'string'
+                    
+                    # Primary Key
+                    if column_name.lower().endswith('_pk'):
+                        value_shown = 'false'
+                        value_primary_key = 'true'
+
+                    # Foreign Key
+                    elif column_name.lower().endswith('_fk'):
+                        value_shown = 'false'
+
+                    # String types
+                    elif data_type.lower() in ['text', 'varchar', 'string', 'char', 'binary', 'variant']:
+                        # If the column is a key column according to the LLM, hide it
+                        if is_key_column_from_llm == 'true':
+                            value_shown = 'false'
+
+                    # Date, time and timestamp-related types
+                    elif data_type.lower() in ['timestamp', 'timestamp_tz', 'timestamp_ltz', 'timestamp_ntz', 'date', 'time']:
+                        value_type = 'time'
+
+                    # Boolean types
+                    elif data_type.lower() in ['boolean']:
+                        value_type = 'boolean'
+                    
+                    # Add the dimension to the dimensions list (not yet written to file)
+                    dimensions.append(f'{column_name_camel_case}: {{\n      sql: `${{CUBE}}."{column_name}"`,\n      description: `{value_column_description}`, \n      type: "{value_type}",\n      primaryKey: {value_primary_key},\n      shown: {value_shown}\n    }}')
 
             # Write dimensions
             file.write('  dimensions: {\n\n')
