@@ -21,6 +21,7 @@ def parse_cli_input(
     cube_subparser = subparsers.add_parser( 'cube', help='Generates base cube syntax' )
     cube_subparser.add_argument( 'profile_dir', type=str, nargs='?', default=default_profile_dir, help='This command takes the path/to/your/profiles.yml as input' )
     cube_subparser.add_argument( 'project_dir', type=str, nargs='?', default=default_project_dir, help='This command takes the path/to/your/project.yml as input' )
+    cube_subparser.add_argument('--llm', action='store_true', help='Use large language model for inferring semantics')
 
     # Parse the arguments
     args = parser.parse_args()

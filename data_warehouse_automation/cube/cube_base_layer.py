@@ -31,9 +31,9 @@ def generate_cube_js_base_file(
     file_path,
     field_descriptions_dictionary,
     inferred_join_cardinalities,
-    semantics_from_large_language_model,
     concise_table_names,
     table_pks,
+    semantics_from_large_language_model=None,
     ):
 
     # Create the necessary directories
@@ -89,11 +89,16 @@ def generate_cube_js_base_file(
                 column_name_camel_case = to_camel_case(column_name)
                 value_column_description = field_descriptions_dictionary.get(column_name.lower(), 'no description') # Find field description 
 
-                # Get semantics for the column from LLM results if they exist
-                column_semantics_from_llm = semantics_from_large_language_model.get(table_name, {}).get(column_name, {})
-                is_key_column_from_llm = column_semantics_from_llm.get('is_key_column')
-                measure_1_type_from_llm = column_semantics_from_llm.get('measure_1_type')
-                measure_2_type_from_llm = column_semantics_from_llm.get('measure_2_type')
+                # Get semantics for the column from LLM results if they exist and flag --llm is set
+                is_key_column_from_llm = None
+                measure_1_type_from_llm = None
+                measure_2_type_from_llm = None
+                if semantics_from_large_language_model is not None:
+                    column_semantics_from_llm = semantics_from_large_language_model.get(table_name, {}).get(column_name, {})
+                    is_key_column_from_llm = column_semantics_from_llm.get('is_key_column')
+                    measure_1_type_from_llm = column_semantics_from_llm.get('measure_1_type')
+                    measure_2_type_from_llm = column_semantics_from_llm.get('measure_2_type')
+                    pass
 
                 # Prepare Measures
                 if data_type.lower() in ['number', 'numeric', 'float', 'float64', 'integer', 'int', 'smallint', 'bigint']:

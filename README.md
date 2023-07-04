@@ -78,7 +78,8 @@ profile_name: # The name of your profile.
   warehouse: your_warehouse # The name of your Snowflake warehouse.
   warehouse_name: snowflake # The type of your warehouse (currently, only `snowflake` is supported).
 ```
-
+### Optional - Setting Up the OpenAI API Key
+To utilize the Large Language Model (`--llm`) functionality, you need to set the OpenAI API key in your environment variables. The key should be assigned to the variable `OPENAI_API_KEY`.
 
 ***
 ## Assumptions About Your Data Warehouse
@@ -142,13 +143,21 @@ Under the hood, the `generate_cube_js_base_file()` function orchestrates this pr
 - `Date`, `time`, and `timestamp` type columns are defined as `time` dimensions.
 - `Boolean` type columns are created as `boolean` dimensions.
 
-To view optional arguments, use the `dwa cube -h` command.
+Optional arguments
+* The `--llm` flag is available with this command and when used, it will make use of a large language model to infer semantics. See more in section [dwa cube - using the Large Language Model](#dwa-cube---using-the-large-language-model)
+
+To view more optional arguments, use the `dwa cube -h` command.
 
 ### dwa cube - output schema design
 There are some designs inherent in the cube output `base.js` file that is worth being mindful of
 * The cubes are hidden by default
 * The cubes have the `_base` suffix in their name. This is to allow the cube's `extend` to use the prefix as its name without causing a conflict. E.g. `dimCustomers_base` should be manually extended to `dimCustomers`.
   * Note: The joins reference the name without the `_base` suffix
+
+### dwa cube - using the Large Language Model
+The `--llm` flag enhances the `dwa cub`e command by enabling semantic inference from your database schema using the OpenAI GPT-3.5-turbo model. It provides insight into key columns, dimension types, and potential measures for each column, significantly improving the generation of the Cube.js `base.js` file.
+
+To use this, you will need [an environment variable with your OpenAI api key](#optional---setting-up-the-openai-api-key) assigned.
 
 ### dwa cube - environment variables
 A key feature of this module is its incorporation of environment variables, namely `databaseSchema` and `databaseName`, which are used to dynamically specify the database and schema that the cubes' `sql:` value references. This is demonstrated in the following code block:

@@ -71,8 +71,11 @@ def main():
     # Remove prefixes from table names
     concise_table_names = remove_prefixes_from_table_names( schema )
 
-    # Infer semantics from a large language model
-    semantics_from_large_language_model = infer_semantics_with_a_large_language_model( schema )
+    # Infer semantics from a large language model if flag --llm is set
+    if args.llm:
+        semantics_from_large_language_model = infer_semantics_with_a_large_language_model( schema )
+    else:
+        semantics_from_large_language_model = None
     
     # Process based on the command
     if args.command == 'cube':
@@ -92,9 +95,9 @@ def main():
             file_path = file_path,
             field_descriptions_dictionary = field_descriptions_dictionary,
             inferred_join_cardinalities = inferred_join_cardinalities,
-            semantics_from_large_language_model = semantics_from_large_language_model,
             concise_table_names = concise_table_names,
             table_pks = table_pks,
+            semantics_from_large_language_model = semantics_from_large_language_model,
             )
 
     else:
