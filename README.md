@@ -1,4 +1,4 @@
-Project curator: [Amir Jaber](https://github.com/Terroface)
+Project curator: Amir Jaber ( [github](https://github.com/Terroface), [linkedin](https://www.linkedin.com/in/amirjaber/), email: amir@rittmananalytics.com )
 # dwa - Data Warehouse Automation
 
 Data Warehouse Automation (dwa) is a tool designed to automate routine tasks involving your cloud-based data warehouse. 
