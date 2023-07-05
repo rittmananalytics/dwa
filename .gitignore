@@ -1,8 +1,12 @@
+# vscode
+.vscode/
+
 # Virtual environment
-.venv/
+.venv*/
 
 # Package metadata
 *.egg-info/
 
 # Running files
 **/__pycache__/
+.ds_store

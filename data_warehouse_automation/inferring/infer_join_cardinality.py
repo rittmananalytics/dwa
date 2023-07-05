@@ -1,10 +1,24 @@
 """
-This  module operates on a data warehouse to deduce join cardinalities between tables, based on 
-provided primary-foreign key pairs. It runs SQL queries to identify the relationship types 
-(one-to-one, one-to-many, many-to-one, or many-to-many), while using a time threshold to flag and 
-skip complex queries that may affect performance. The results are saved into a JSON file, facilitating 
-incremental updates and reuse of existing inferences, thereby supporting optimized data processing 
-and efficient database querying.
+The module operates on a data warehouse schema to deduce join cardinalities
+between tables, based on provided primary-foreign key pairs. It employs SQL
+queries to deduce the relationship types between pairs of tables - one-to-one,
+one-to-many, many-to-one, or many-to-many.The results, including the original
+and reverse cardinality and a flag indicating if the query exceeded a given time
+threshold, are saved into a JSON file.
+
+The dictionary has the following structure:
+[
+    {
+    'left_table': 'name_of_the_left_table',
+    'left_column': 'name_of_the_left_column',
+    'right_table': 'name_of_the_right_table',
+    'right_column': 'name_of_the_right_column',
+    'cardinality': 'deduced_cardinality',
+    'reverse_cardinality': 'reversed_deduced_cardinality',
+    'exceeded_threshold': boolean_value
+    },
+...
+]
 """
 
 import os
@@ -12,7 +26,13 @@ import json
 import snowflake.connector
 import time
 
-def infer_join_cardinality(connection, pk_fk_pairs, table_pks, join_query_time_threshold):
+def infer_join_cardinality(
+    connection,
+    pk_fk_pairs,
+    table_pks,
+    join_query_time_threshold,
+    ):
+    
     # Specify the output directory and file path
     output_dir = "dwa_target"
     output_file_path = os.path.join(output_dir, "inferred_join_cardinalities.json")

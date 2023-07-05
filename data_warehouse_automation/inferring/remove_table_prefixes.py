@@ -1,13 +1,19 @@
 """
-This module processes a dictionary representing a database schema and removes specified prefixes 
-from the table names. The input includes a list of potential prefixes, and the function iteratively 
-checks and removes these from each table name. The output is a new dictionary mapping the original 
-table names to the adjusted names, facilitating easier reference and more readable code within the 
-broader application.
+This function simplifies table naming within a database schema
+dictionary by removing certain specified prefixes from the table
+names. The function takes a dictionary representation of a schema
+as input and returns a new dictionary with original table names
+mapped to their simplified counterparts.
+
+The dictionary output has the following format:
+{
+    'original_table_name': 'simplified_table_name',
+    ...
+}
 
 """
 
-def remove_prefixes_from_table_names(schema_dict):
+def remove_prefixes_from_table_names( schema_dict ):
 
     prefixes = [
         'dim_',

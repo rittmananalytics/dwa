@@ -11,6 +11,7 @@ from data_warehouse_automation.inferring.extract_table_pks import extract_table_
 from data_warehouse_automation.inferring.extract_pk_fk_pairs import extract_pk_fk_pairs
 from data_warehouse_automation.inferring.infer_join_cardinality import infer_join_cardinality
 from data_warehouse_automation.inferring.remove_table_prefixes import remove_prefixes_from_table_names
+from data_warehouse_automation.inferring.langchain import infer_semantics_with_a_large_language_model
 from data_warehouse_automation.input.read_text_file import read_text_file
 from data_warehouse_automation.input.process_markdown_file_content import extract_documentation
 from data_warehouse_automation.cube.cube_base_layer import generate_cube_js_base_file
@@ -38,7 +39,7 @@ def main():
         schema = profile_content['schema_name'],
         user = profile_content['user'],
         warehouse = profile_content['warehouse'],
-    )
+        )
 
     # Extract PKs from the schema
     table_pks = extract_table_pks(schema)
@@ -59,7 +60,8 @@ def main():
             connection = snowflake_connection,
             pk_fk_pairs = pk_fk_pairs,
             table_pks = table_pks,
-            join_query_time_threshold = project_content['join_query_time_threshold'])
+            join_query_time_threshold = project_content['join_query_time_threshold'],
+            )
     else:
         print('join_inference_enabled is not set to true in project .yml file. Join inference is skipped')
 
@@ -67,26 +69,37 @@ def main():
     snowflake_connection.close()
 
     # Remove prefixes from table names
-    concise_table_names = remove_prefixes_from_table_names(schema)
+    concise_table_names = remove_prefixes_from_table_names( schema )
 
-    # Set the file path for the cube.js base file
-    file_path = 'cube/schema/base.js'
-
+    # Infer semantics from a large language model if flag --llm is set
+    if args.llm:
+        semantics_from_large_language_model = infer_semantics_with_a_large_language_model( schema )
+    else:
+        semantics_from_large_language_model = None
+    
     # Process based on the command
     if args.command == 'cube':
+
+        # Set the file path for the cube.js base file
+        file_path = 'cube/schema/base.js'
+
         field_description_file_content = read_text_file( 
-            project_content['field_description_path'],
-            project_content['field_description_file_name']
-        )
-        field_descriptions_dictionary = extract_documentation(field_description_file_content)
+            file_path = project_content['field_description_path'],
+            file_name = project_content['field_description_file_name']
+            )
+
+        field_descriptions_dictionary = extract_documentation( field_description_file_content )
+
         generate_cube_js_base_file(
-            schema,
-            file_path,
-            field_descriptions_dictionary,
-            inferred_join_cardinalities,
-            concise_table_names,
-            table_pks
-        )
+            schema = schema,
+            file_path = file_path,
+            field_descriptions_dictionary = field_descriptions_dictionary,
+            inferred_join_cardinalities = inferred_join_cardinalities,
+            concise_table_names = concise_table_names,
+            table_pks = table_pks,
+            semantics_from_large_language_model = semantics_from_large_language_model,
+            )
+
     else:
         print( 'Invalid command' )
 

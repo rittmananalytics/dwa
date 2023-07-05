@@ -3,11 +3,17 @@ This module takes the content of the markdown file as input and returns a dictio
 where the keys are the names of the documentation blocks (i.e., the strings between 
 {% docs %} and {% enddocs %}) and the values are the content of the blocks.
 
+The dictionary is in this shape:
+{
+    "documentation_block_name": "documentation_block_content",
+    ...
+}
+
 """
 
 import re
 
-def extract_documentation(markdown_content):
+def extract_documentation( markdown_content ):
 
     # If markdown_content is an empty dictionary, return an empty dictionary
     if isinstance(markdown_content, dict) and not markdown_content:

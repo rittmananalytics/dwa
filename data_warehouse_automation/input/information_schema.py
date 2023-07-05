@@ -2,8 +2,20 @@
 this module queries the database to establish the information schema.
 
 It returns
-* a list of dictionaries with table and column names as well as the column types
-* the snowflake connection object 
+* tables_columns: a list of dictionaries with table and column names as well as the column types
+* conn: the snowflake connection object
+
+The dictionary is in this shape:
+{
+    "table_name": [
+        {
+            "column_name": "column_name",
+            "data_type": "data_type"
+        },
+        ...
+    ],
+    ...
+}
 
 """
 
